@@ -112,10 +112,10 @@ In order to make the function return a maximum number of recipes, I implemented 
 
       return {'apps': both_lists}
 
-  #This function displays only those apps that the user has decided to show
-  @register.inclusion_tag('CustomTags/homepage_apps.html')
-  def show_active_apps(request):
-      #This can be deleted after Development. This creates preference tables for those whose accounts were made before this was implemented
+    #This function displays only those apps that the user has decided to show
+    @register.inclusion_tag('CustomTags/homepage_apps.html')
+    def show_active_apps(request):
+    #This can be deleted after Development. This creates preference tables for those whose accounts were made before this was implemented
       #===================
       if not BandsPreferences.objects.filter(user_id=request.user.userprofile.user_id):
           create_prefs(request.user)
@@ -131,15 +131,15 @@ In order to make the function return a maximum number of recipes, I implemented 
 
       return {'apps': active_apps}
 
-  #Returns details for an app if user has selected this app to be active        
-  def get_details_HmPg(name, app, cur_user):
-      preference = app.objects.get(user=cur_user)#Find current user's preferences for this app
-      if preference.offOn == True: #If this app is to be displayed:
-          row = AppProps.objects.get(app_name=name) #Find details for this app
-          title = row.title
-          icon = row.icon
-          url = row.url
-          cur_app = HomeApps(title, icon, url)
-          return cur_app
+    #Returns details for an app if user has selected this app to be active        
+    def get_details_HmPg(name, app, cur_user):
+        preference = app.objects.get(user=cur_user)#Find current user's preferences for this app
+        if preference.offOn == True: #If this app is to be displayed:
+            row = AppProps.objects.get(app_name=name) #Find details for this app
+            title = row.title
+            icon = row.icon
+            url = row.url
+            cur_app = HomeApps(title, icon, url)
+            return cur_app
 On the client side, the data was unpacked, creating as many app modules as there were apps. Depending on the user's preferences, the buttons would be show as either on or off. Then, in the site's profile page, it was as simple as calling the tag's function, which loaded the previously defined template into the page. In addition, I made the preference buttons dynamically functional as well. Each button was basically a checkbox input tag, and was given an id value based on the app name. Upon being checked or unchecked, a jquery script triggered an AJAX post request, containing the button ID and bool value, which the server saved to the appropriate entity in the database.
 4) Making the homepage show only active apps. One of the user preferences for each app controlled whether this app appeared on the homepage dashboard of apps, for easy access. Just as I did for the profile page, I created a custom tag that would load only those app icons that the user has decided to display.  On the server side for this tag, I queried each app preference table for that user's preference. If the answer was "yes" to display this app, the function would add the details for this app to the list of apps. This list was then sent to the HTML template, where it was unpacked creating as many app icons on the page as there were active apps.
