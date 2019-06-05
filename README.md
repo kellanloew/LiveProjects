@@ -26,16 +26,251 @@ Change preferences. Auto-populate list of favorite sports teams, and retrieve th
 ## Third sprint (Python Front-end only):
 
 1. Readded missing login button.
-2. I was responsible for making the entire website have a uniform styling in terms of fonts, colors, and spacings. I made plenty use of bootstrap features, specifically rows and columns to organize the different elements in. I was given a palette of theme colors to choose from, and apply them to buttons, backgrounds and text. To do so, I created several CSS variables for these colors that could be easily accessed anywhere in the CSS. The different HTML elements made use of these variables, so if ever a slight tweak of the colors were necessary, they could all be changed at one stroke.
-3. Added an app manager to the profile page. Basically a bunch of compartments, each containing the app icon, several slider buttons, description, and list of app contributors. The icons and buttons are colored according to the agreed on colors for the apps.
-4. The news-app was just a static page with the headline and photo for each news article.  I converted this into a carousel in which each entity was the news photo with an overlay of the headlines, and the user could go through each one by clicking forward and backward arrows. Then i added a slider by which, though not fully functional, allowed the the user to navigate through the different headings.
+2. I was responsible for making the entire website have a uniform styling in terms of fonts, colors, and spacings. I made plenty use of bootstrap features, specifically rows and columns to organize the different elements in. I was given a palette of theme colors to choose from, and apply them to buttons, backgrounds and text. To do so, I created several CSS variables for these colors that could be easily accessed anywhere in the CSS.
+```
+:root {
+  --text-color:#99a2b5;
+  --text-hover: #9AA3A8;
+  --navbar-color: #2A373F;
+  --background-color: #1b1b21;
+  --default-button:#5C6971;
+  --color-standard:#28AC60;
+  --color-standard-hover: #2FCC71;
+  --user-color: #389EAA;
+  --user-color-hover: #7AC9D0;
+  --text-in-dark: #EBF1F1;
+}
+```
+The different HTML elements made use of these variables, so if ever a slight tweak of the colors were necessary, they could all be changed at one stroke.
+3. Added an app manager to the profile page. Basically a bunch of compartments, each containing the app icon, several slider buttons, description, and list of app contributors. The icons and buttons are colored according to the agreed on colors for the apps. (This app manager was updated in a later sprint below; you can see the updated code there.)
+4. The news-app was just a static page with the headline and photo for each news article.  I converted this into a carousel in which each entity was the news photo with an overlay of the headlines, and the user could go through each one by clicking forward and backward arrows. Then I added a slider by which, though not fully functional, allowed the the user to navigate through the different headings.
+```
+<div class="carousel slide" id="news-container">
+      <div class="carousel-inner row mx-auto">
+        {% for item in news.all_list %}
+        {% if item.3 == 0 %} <!--Creates the first newsheading with active attribute-->
+          <div class="carousel-item col news-item active">
+            <a href={{ item.1 }}>                                           
+              <img src={{ item.2 }}>
+              <div class="news-overlay">
+                <h3 class="news-heading">{{ item.0 }}</h3>
+              </div>
+            </a>
+          </div>
+        {% else %} <!--Creates the rest of the news heading-->
+          <div class="carousel-item col news-item">
+            <a href={{ item.1 }}>                                           
+              <img src={{ item.2 }}>
+              <div class="news-overlay">
+                <h3 class="news-heading">{{ item.0 }}</h3>
+              </div>
+            </a>
+          </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+      <a class="carousel-control-prev" id="prev-button" href="#news-container" role="button" data-slide="prev">
+          <i class="fa fa-chevron-left fa-lg news-chevron"></i>
+          <span class="sr-only">Previous</span>
+      </a>
+      <a class="carousel-control-next text-faded" id="next-button" href="#news-container" role="button" data-slide="next">
+          <i class="fa fa-chevron-right fa-lg news-chevron"></i>
+          <span class="sr-only">Next</span>
+      </a>
+  </div>
+  <!--Slider for moving through headings easily-->
+  <div class="slider-box">
+    <div class="slidecontainer">
+      <input type="range" min="1" max="" class="news-slider" value="1" id="news-range">
+    </div>
+  </div>
+.....
+@media (min-width: 768px) {
+
+  /* show 3 items */
+  .carousel-inner .active,
+  .carousel-inner .active + .carousel-item,
+  .carousel-inner .active + .carousel-item + .carousel-item  {
+    display: inline;
+  }
+
+  .carousel-inner .carousel-item.active:not(.carousel-item-right):not(.carousel-item-left),
+  .carousel-inner .carousel-item.active:not(.carousel-item-right):not(.carousel-item-left) + .carousel-item,
+  .carousel-inner .carousel-item.active:not(.carousel-item-right):not(.carousel-item-left) + .carousel-item + .carousel-item
+  {
+    transition: none;
+  }
+
+  .carousel-inner .carousel-item-next,
+  .carousel-inner .carousel-item-prev {
+    position: relative;
+    transform: translate3d(0, 0, 0);
+  }
+
+  .carousel-inner .active.carousel-item + .carousel-item + .carousel-item + .carousel-item + .carousel-item {
+    position: absolute;
+    top: 0;
+    right: -50%;
+    z-index: -1;
+    visibility: visible;
+  }
+
+  /* farthest right hidden item must be absolute position for animations */
+  .carousel-inner .carousel-item-prev.carousel-item-right {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    display: block;
+    visibility: visible;
+  }
+
+  /* left or forward direction */
+  .active.carousel-item-left + .carousel-item-next.carousel-item-left,
+  .carousel-item-next.carousel-item-left + .carousel-item,
+  .carousel-item-next.carousel-item-left + .carousel-item + .carousel-item
+  {
+    position: relative;
+    transform: translate3d(-100%, 0, 0);
+    visibility: visible;
+  }
+
+  /* right or prev direction */
+  .active.carousel-item-right + .carousel-item-prev.carousel-item-right,
+  .carousel-item-prev.carousel-item-right + .carousel-item,
+  .carousel-item-prev.carousel-item-right + .carousel-item + .carousel-item
+  {
+    position: relative;
+    transform: translate3d(100%, 0, 0);
+    visibility: visible;
+  }
+}
+```
 5. Added a default profile image if the user has not selected a personal one, and eliminated an upload button by automatically uploading/changing the picture once the user has selected a profile pic from a file explorer.
+```
+{% if user.userprofile.image %}
+                <img class="profile-image img-fluid float-left" id="prof-pic" src="{{ user.userprofile.image.url }}" width="166" height="141"/>
+            {% else %}
+                <img class="float-left" id="prof-pic" src="../static/img/blank-profile.png" width="166" height="141" alt="Your Name Here" />
+            {% endif %}
+.....
+$(document).on('change', ':file', function() {
+    $("#upload").submit();
+});
+
+```
 
 ## Fourth Sprint (Python Back-end only):
 
-1. Account App. Goal: allow user to switch a button allowing him to toggle automatic geolocation or not. Added slider to HTML, linked it to AJAX call which would post when the slider was switched from its current position. (In this process, discovered the necessity of installing a function that would create a csrf token) The setting was saved to database. The weather app (the only one at the moment using geolocation) was updated so that it would check the database whether to fetch current location first before finding weather, or use the default location stored in the DB.
-2. Traffic App. Goal: display directions on map. At first I tried getting images of the map by accessing Mapquest's main API, which returns a JSON. However, all the images returned were too small and none showed the directions from start to finish, but only sections. Then I switched to Mapquest's JS API, where I could load real zoomable maps onto the HTML.  I queried the API's portals by giving them the starting and ending locations that the user entered into the text boxes.  I set up the page so that it would only show the map, and display the directions on the page, after the user had already requested directions from the main API.
-3. Messaging App. Goal: add response functionality to message app. To do this, I added a button to each message in the inbox, that when clicked on, would display a textbox where the user could respond to the message, as well as a button to send the message.  On the backend, I created another column in the database to keep track of message threads, so that the message couuld eventually be displayed nicely on the page grouped according to the conversation thread (I did not actually implement this part).
+1. Account App. Goal: allow user to switch a button allowing him to toggle automatic geolocation or not. Added slider to HTML, linked it to AJAX call which would post when the slider was switched from its current position. (In this process, discovered the necessity of installing a function that would create a csrf token for Django's authentication system)
+```
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+```
+The setting was saved to database.
+```
+if buttonID == "#geo-button": #If main geolocation button was changed
+        print(buttonValue)
+        if buttonValue == "True":
+            curruser.user_tracking = True
+            #Save user's new location
+            url='https://api.ipgeolocation.io/ipgeo?apiKey=b19ee562aa72436e94a39580c8265ad3'
+            r = requests.get(url).json()
+            curruser.city = r['city']
+            curruser.lng = float(r['longitude'])
+            curruser.lat = float(r['latitude'])
+        else:
+            curruser.user_tracking = False
+        curruser.save()
+```
+The weather app (the only one at the moment using geolocation) was updated so that it would check the database whether to fetch current location first before finding weather, or use the default location stored in the DB.
+```
+if curruser.user_tracking == 1 or curruser.city == "":
+        cityname = 'https://api.ipgeolocation.io/ipgeo?apiKey=b19ee562aa72436e94a39580c8265ad3'
+        r = requests.get(cityname).json()
+        city = r['city']
+    else:
+        city = curruser.city
+```
+2. Traffic App. Goal: display directions on map. At first I tried getting images of the map by accessing Mapquest's main API, which returns a JSON. However, all the images returned were too small and none showed the directions from start to finish, but only sections. Then I switched to Mapquest's JS API, where I could load real zoomable maps onto the HTML.  I queried the API's portals by giving them the starting and ending locations that the user entered into the text boxes.
+```
+L.mapquest.key = 'qGyMswGafi2puTNqSP91ETXcNRDFrAyG';
+
+//Hides map until directions have been found
+document.getElementById('map').style.width = 0
+document.getElementById('map').style.height = 0
+
+//Get text of direction heading
+var test = $('#dir-heading').html();
+
+if( test.length > 21) { //Checks if heading text is default length, or if it has directions in it
+    
+    //Gets directions
+    
+    function directionsCallback(error, response) {
+        var map = L.mapquest.map('map', {
+        center: [0,0],
+        layers: L.mapquest.tileLayer('map'),
+        zoom: 7
+    });
+
+    //Adds route direction to map
+    L.mapquest.directionsLayer({
+        directionsResponse: response
+        }).addTo(map);
+        return map;
+    }
+
+    //Get starting and ending locations entered by user
+    var startLoc = $("#id_start").val();
+    var endLoc = $("#id_end").val();
+
+    var directions = L.mapquest.directions();
+    
+    //Returns starting and ending points to API
+    directions.route({
+        start: startLoc,
+        end: endLoc
+    });
+```
+I set up the page so that it would only show the map, and display the directions on the page, after the user had already requested directions from the main API.
+```
+    //Displays map now that directions have been found
+    document.getElementById('map').style.width = "100%"
+    document.getElementById('map').style.height = "530px"
+    
+    var map = L.mapquest.map('map', {
+        center: [0, 0],
+        layers: L.mapquest.tileLayer('map'),
+        zoom: 12
+    });
+};
+```
+3. Messaging App. Goal: add response functionality to message app. To do this, I added a button to each message in the inbox, that when clicked on, would display a textbox where the user could respond to the message, as well as a button to send the message.
+```
+<form class="response-form" id="response-{{ message.id }}" method="post">
+	{% csrf_token %}
+	<!--These automatically get the recipient name and thread id when the message is posted-->
+	<input style="display: none;" name="response-recipient" value="{{ message.recipient }}">
+	<input style="display: none;" name="response-thread" value="{{ message.thread }}">
+	{{ form.messageBody }}
+	<button class="btn default-button message-buttons" type="submit">Send</button>
+</form>
+```
+On the backend, I created another column in the database to keep track of message threads, so that the message couuld eventually be displayed nicely on the page grouped according to the conversation thread (I did not actually implement this part).
 ```
 def inbox(request):
     #If a message is replied to in the inbox
