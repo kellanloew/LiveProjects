@@ -35,12 +35,201 @@ Change preferences. Auto-populate list of favorite sports teams, and retrieve th
 
 1. Account App. Goal: allow user to switch a button allowing him to toggle automatic geolocation or not. Added slider to HTML, linked it to AJAX call which would post when the slider was switched from its current position. (In this process, discovered the necessity of installing a function that would create a csrf token) The setting was saved to database. The weather app (the only one at the moment using geolocation) was updated so that it would check the database whether to fetch current location first before finding weather, or use the default location stored in the DB.
 2. Traffic App. Goal: display directions on map. At first I tried getting images of the map by accessing Mapquest's main API, which returns a JSON. However, all the images returned were too small and none showed the directions from start to finish, but only sections. Then I switched to Mapquest's JS API, where I could load real zoomable maps onto the HTML.  I queried the API's portals by giving them the starting and ending locations that the user entered into the text boxes.  I set up the page so that it would only show the map, and display the directions on the page, after the user had already requested directions from the main API.
-3. Messaging App. Goal: add response functionality to message app. To do this, I added a button to each message in the inbox, that when clicked on, would display a textbox where the user could respond to the message, as well as a button to send the message.  On the backend, I created another column in the database to keep track of message threads, so that the message couuld eventually be displayed nicely on the page grouped according to the conversation thread (I did not actually implement this part).  The value of the conversation thread was the message of the id of the first message that was responded to.
-4. Movie App. Create an app that will allow the user to view most popular movies, sort them by year and/or genre, and change the number to display on the page. For each movie, there is a toggle button to allow the user to view details on the movie, such as year, genre, director, and plot. For setup I added a movie class with the properties already mentioned, and added a model/DB table for saving the user preferences for display and sort options, set up the HTML page with appropriate buttons and drop down list. The view consisted of two classes, one to deal with the the get/post requests and another to actually fetch the list of movies. The first class checked the user display preferences, saved any new changes to the DB, and passed these changes to the second class so it could fetch movies accordingly. Using beautiful soup and parsing techniques, I got the top 100 movie title from IMDB. Then for each movie, using the title as parameter, I queried the OMDB API for details for each movie.  This involved installing python's w3lib module to make the title string into a safe parameter with only ASCII characters, to remove the possibility of foreign characters being passed in. The OMDB API returned a JSON object which I parsed for the data I wanted, then saved the appropriate data to the appropriate properties of a movie class instance.  A list of movies was thereby created, and returned in a context to the HTML.
+3. Messaging App. Goal: add response functionality to message app. To do this, I added a button to each message in the inbox, that when clicked on, would display a textbox where the user could respond to the message, as well as a button to send the message.  On the backend, I created another column in the database to keep track of message threads, so that the message couuld eventually be displayed nicely on the page grouped according to the conversation thread (I did not actually implement this part).
+```
+def inbox(request):
+    #If a message is replied to in the inbox
+    if request.method == "POST":
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.sender = request.user
+            message.recipient = request.POST.get('response-recipient', None)
+            message.thread = request.POST.get('response-thread', None)
+            message.sent = datetime.now()
+            message.save()
+        return redirect('inbox')
+    #If inbox is loaded
+    else:
+        messages = Message.objects.filter(Q(sender=request.user) | Q(recipient=request.user)).order_by('-thread')
+        form = MessageForm()
+        return render(request, 'chat/inbox.html', {'messages': messages, 'form': form})
+```
+The value of the conversation thread was the message of the id of the first message that was responded to.
+4. Movie App. This was an app that would allow the user to view most popular movies, sort them by year and/or genre, and change the number to display on the page. For each movie, there is a toggle button to allow the user to view details on the movie, such as year, genre, director, and plot. To setup, I added a movie class with the properties already mentioned, and added a model/DB table for saving the user preferences for display and sort options, set up the HTML page with appropriate buttons and drop down list. The view consisted of two functions, one to deal with the the get/post requests and another to actually fetch the list of movies. The first function checked the user display preferences, saved any new changes to the DB, and passed these changes to the second class so it could fetch movies accordingly.
+```
+def topfive(request):
+   
+    #Object representing the current user's row in DB
+	try:
+		db = MoviePreferences.objects.get(user_id = request.user.id)
+	except: #If user does not have a row in the DB, create one
+		dbCreate = MoviePreferences.objects.create(user_id = request.user.id)
+		dbCreate.save()
+		db = MoviePreferences.objects.get(user_id = request.user.id)
+	
+	if request.method == "GET":
+		return get_movies(request, db.display, db.year_sort, db.genre_sort)
+	elif request.method == "POST":
+		#If different number of movies to be displayed was changed
+		if request.POST.get('displayNumber', None) != None:
+			custom_display = int(request.POST.get('displayNumber', None), 10)
+			db.display = custom_display #Save value to display column
+			db.save()
+			return get_movies(request, custom_display, db.year_sort, db.genre_sort)
+		#If a year sort was requested
+		elif request.POST.get('year-sort', None) != None:
+			db.year_sort = int(request.POST.get('year-sort', None), 10)
+			db.save()
+			return get_movies(request, db.display, db.year_sort, db.genre_sort)
+		#If a genre sort was requested
+		else:
+			if request.POST.get('sort-type', None) != None:
+				genreSort = request.POST.get('sort-type', None)
+				db.genre_sort = genreSort
+				db.save()
+				return get_movies(request, db.display, db.year_sort, genreSort)
+```
+In the second function, using beautiful soup and parsing techniques, I got the top 100 movie title from IMDB. Then for each movie, using the title as parameter, I queried the OMDB API for details for each movie.  This involved installing python's w3lib module to make the title string into a safe parameter with only ASCII characters, to remove the possibility of foreign characters being passed in. The OMDB API returned a JSON object which I parsed for the data I wanted, then saved the appropriate data to the appropriate properties of a movie class instance.  A list of movies was thereby created, and returned in a context to the HTML.
 In order to implement the genre search efficiently, before creating a movie instance and adding it to the list, I checked the JSON response to see if the movie included the genre the user requested, and if not, it simply returned to the top of the loop to find the next movie.
-To implement the year sort, instead of sorting the list of movies by genre after the list was created, I wrote a simple algorithm to insert the new movie at the correct place in the list each time a new movie was fetched, so that by the end the list was alreadt sorted.
 To implement the display feature, the loop to fetch movies was ran until the length of the movie list was as long as the desired display.
+```
+def get_movies(request, displayNum, yearSort, genreSort):
+	all_movies = []
+	api_beginning = "http://www.omdbapi.com/?apikey=360766ac&t="
+	# The following loop will run once for each movie title fetched from the IMDB, until
+	# the desired number of movies is fetched, or until the IMDB list is exausted
+	counter = 0
+	while len(all_movies) < displayNum and counter < 100:
+		# get title
+		movie_string = movies[counter].get_text()
+		movie_title = movie_string.split("(")[0] #Get just movie title	
+		
+		fixUrlParam(movie_title)
 
+		movie_title_parameter = "".join(movie_title) #Convert back to string (unicode)
+		fullURL = api_beginning + movie_title_parameter #Create full URL
+		fullURL = fullURL.encode('utf-8') #Converts the string into bytes using utf-8 encoding
+		fullURL = safe_url_string(fullURL) #Pass this byte list into w3lib's safe url method, and fix illegal characters	
+		
+		print(fullURL)
+
+		cur_json = urllib.request.urlopen(fullURL).read() # Fetch a JSON object from API
+		cur_json = json.loads(cur_json) #Decode object into dictionary
+		
+		#Try this next section if there are no errors in reading the JSON,
+		# i.e., the movie does not exist in the DB, etc.
+		try:
+			#Save the movie's details
+			title = cur_json['Title']
+			year = cur_json['Year']
+			runtime = cur_json['Runtime']
+			director = cur_json['Director']
+			genre = cur_json['Genre']
+			plot = cur_json['Plot']
+			image = cur_json['Poster']
+			index_place = counter
+			
+			#Year variable must be an int in order for the year sort logic to work. The try/catch statement
+			# covers the case where JSON returns a non-int value 
+			try:
+				year = int(year)
+			except:
+				if "-" in year:
+					year = int(year.split("-")[0])
+				else:
+					year = 0 # Dummy year of 0 to put this movie at end of list
+			
+			# If movie's genre matches genre selection, all good
+			if genreSort in genre or genreSort == "All":
+				pass
+			# If non, break the loop and begin a new iteration
+			else:
+				counter += 1
+				continue
+			
+			# Create instance of Movie class and save the previous movie details
+			# to the appropriate properties
+			cur_movie = Movie(title, year, runtime, director, plot, genre, image, index_place)
+
+			#Sort by year if this is user's preference
+			if yearSort == 1:
+				sortMovies(all_movies, cur_movie)
+			# Otherwise, jsut add movie to end of movie list
+			else:
+				all_movies.append(cur_movie)
+			
+			counter += 1
+		
+		# Catches potential key error if JSON cannot be read
+		except KeyError as e:
+			print(e)
+			counter += 1
+
+	#Replace any year 0 with "N/A"
+	for movie in all_movies:
+		if movie.year == 0:
+			movie.year = "N/A"
+	# Dictionary to be passed to HTML
+	context = {'imdb' : all_movies, 'sortBool': yearSort}
+	
+	return render(request, 'movie/movie.html', context)
+```
+To implement the year sort, instead of sorting the list of movies by genre after the list was created, I wrote a simple algorithm to insert the new movie at the correct place in the list each time a new movie was fetched, so that by the end the list was alreadt sorted.
+```
+def sortMovies(totalMovies, currentMovie):
+	index = 0
+	if len(totalMovies) == 0: #If first movie to be added to list, no sorting necessary
+		totalMovies.append(currentMovie)					
+	else: #Otherwise, insert movie at appropriate position
+		while(index < len(totalMovies) and currentMovie.year < totalMovies[index].year):
+			index += 1
+		totalMovies.insert(index, currentMovie)
+```
+In order to make the genre, sort, and display button on the HTMl page communicate with the server, I wrote some JavaScript functions:
+```
+//Display details for movie that user clicks on
+$(".movie-deets").click(function (){
+    var id = $(this).attr("id");
+    $(this).text($(this).text() == "See Details" ? "Hide Details" : "See Details"); //Toggle button text logic
+    id = id.replace("button", "#details") //Get div id
+    $(id).toggle(); //Toggle display of this div
+});
+
+//Updates page when user selects different number of movies
+$(".display-item").on('click', function (){
+    var option = $(this).text(); //Get value of selected option
+    $("#display").val(option); //Store this value in input tag
+    $("#display-num").submit(); //Submit value of input
+});
+
+//Updates page when user selects a genre to sort by
+$(".sort-item").on('click', function (){
+    var option = $(this).attr('id');
+    $("#sort").val(option);
+    $("#sort-form").submit();
+});
+
+//Updates page when user chooses to sort by year
+$("#year-sort").on('click', function (){
+    if( parseInt($("#sort-input").val()) == 1){
+        $("#sort-input").val(0);
+    }
+    else {
+        $("#sort-input").val(1);
+    }
+    $("#sort-year").submit();
+});
+
+//Stops playing youtube video when modal is closed
+var src = $('.modal').find('iframe').attr('src'); //Get url for youtube video (needed later)
+var close =  $('.modal').find("button"); //Get close button object
+
+close.on('click', function(){ //Function to execute when modal closed
+    $('.modal').find('iframe').attr('src', ''); //Removes url source for video, thus closing it
+    $('.modal').find('iframe').attr('src', src); //Puts it back right away to be used for next time the modal is opened
+});
+```
 ## Fifth Sprint (Python full stack):
 1. Recipe App. For the first four days of this sprint, I worked on creating a new app that would allow the user to search for recipe by ingredient name, display the search results to the user, and let the user click on a recipe see the details.
 I broke the problem down into two main functions: the first function received the user's search word and searched a recipe API for recipes with that name. The second function returned details on a specific recipe that the user selected.
