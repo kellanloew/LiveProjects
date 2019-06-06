@@ -6,9 +6,9 @@ In the first sprint, I helped create and improve various features of a django we
 In the second sprint, I worked on an admin site for the construction company Erectors, Inc. The purpose of this site was to allow project managers to assign and manage tasks adn task details for each of the employees, and allow everyone to chat with each other about related questions.
 In the last 3 sprints, I worked on a revamped version of the previous Django Datascraper, one sprint on Frontend, Backend, and Fullstack each.
 ## Sprints
-* [First Sprint, Python full stack](#first-sprint-python-full-stack))
+* [First Sprint, Python full stack](#first-sprint-python-full-stack)
 * [Second Sprint, C Sharp full stack](#second-sprint-c-sharp-full-stack)
-* [Third Sprint, Python front end)](#third-sprint-python-front-end)
+* [Third Sprint, Python front end](#third-sprint-python-front-end)
 * [Fourth Sprint, Python back end](#fourth-sprint-python-back-end)
 * [Fifth Sprint, Python full stack](#fifth-sprint-python-full-stack)
 
