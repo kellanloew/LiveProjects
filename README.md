@@ -3,21 +3,307 @@ Web Development Projects
 
 Over the last three months at the Tech Academy, I worked on a team of fellow junior developers as a fullstack website developer.  With a total of 5 different two-week sprints, I gained a lot of confidence in working in both Django and ASP.NET frameworks.
 In the first sprints, I helped create and improve various features of a django website that fetched and aggregated data based on user-preferences, such as weather alerts, current traffic, sport events, concerts, movies, and podcasts.
-In the second sprint, I worked on an admin site for a Erectors, Inc. The purpose of this site was to allow project managers to assign and manage tasks adn task details for each of the employees, and allow everyone to chat with each other about related questions.
+In the second sprint, I worked on an admin site for the construction company Erectors, Inc. The purpose of this site was to allow project managers to assign and manage tasks adn task details for each of the employees, and allow everyone to chat with each other about related questions.
 In the last 3 sprints, I worked on a revamped version of the previous Django Datascraper, one sprint on Frontend, Backend, and Fullstack each.
 
 
 ## First Sprint (Python full stack):
-1. Home Page. I added to the homepage a grid of photos representing the different features of the website, which when clicked, directed the user to the latest updates regarding that category, and displayed a error-modal if access is attempted to a page without the user being logged in.
-2. Populating a dropdown list for sending messages to friends.
-3. Weather Alerts. Queried the weather API for current weather alerts, including title, times, and areas affected. Parsed the JSON string and saved appropriate parts to variables in a dictionary, and passing this dictionary to the HTMl I displayed the information nicely formatted. I ran into a bug around the method "zip" -- someone had previously defined a variable of this name and 
-4. Add Movie Images. Retreived the URLs for the top movie titles from an online API via JSON, and displayed them tabularly in a view.
-6. Events. Query event API for relevant data by zipcode, then if returns nothing, query by cityname.  Send this dictionary of variables to HTML where it was displayed appropriately.
-Change preferences. Auto-populate list of favorite sports teams, and retrieve the user's favorite team.
+1. Home Page. I added to the homepage a grid of photos representing the different features of the website, which when clicked, directed the user to the latest updates regarding that category, and displayed a error-modal if access is attempted to a page without the user being logged in.  Here is one row of the grid:
+```
+<h1>Welcome to DataScrape!</h1>
+    <h3 id="description">Click on any of the images below to see the latest personalized updates.</h3>
+    <p id="please-login">Please login so that you can view your personal updates.</p>
+    <div id="popup-overlay" onclick="off()">
+        <div id="text">Please login so that you can view your personal updates.</div>
+    </div>
+    <div class="container-fluid" id="imgs">
+        <div class="row" id="homepage_row">
+            <div class="col-md-3">
+                <div class="flex-container">
+                    <div class="photo">
+                        <a href="{% url 'movies' %}">
+                            <img src="/static/img/Homepage/movies.png" alt="pic" class="img-fluid" width="210" height="210">
+                            <div class="overlay">
+                                <h3 class="overlay-text">Movies</h3>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="flex-container">
+                    <div class="photo">
+                        <a {% if user.is_authenticated %} href="{% url 'events' %}" {% else %} onclick="please_login()" {% endif %}>
+                            <img src="/static/img/Homepage/thunderstorm.jpg" alt="pic" class="img-fluid" width="210" height="210">
+                            <div class="overlay">
+                                <h3 class="overlay-text">Weather</h3>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="flex-container">
+                    <div class="photo">
+                        <a {% if user.is_authenticated %} href="{% url 'events' %}" {% else %} onclick="please_login()" {% endif %}>
+                            <img src="/static/img/Homepage/concert.jpg" alt="pic" class="img-fluid" width="210" height="210">
+                            <div class="overlay">
+                                <h3 class="overlay-text">Events</h3>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                    <div class="flex-container">
+                        <div class="photo">
+                            <a href="{% url 'nasa' %}">
+                                <img src="/static/img/Homepage/oceanworlds.jpg" alt="pic" class="img-fluid" width="210" height="210">
+                                <div class="overlay">
+                                    <h3 class="overlay-text">NASA</h3>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+        </div>
+```
+2. I worked on populating a dropdown list that would have a list of friends that the user could send messages to.
+```
+INSERT CODE
+```
+3. Weather Alerts. Queried the weather API for current weather alerts, including title, times, and areas affected. Parsed the JSON string and saved appropriate parts to variables in a dictionary. I ran into a bug around the method "zip" -- someone had previously defined a variable of this name and had overwritten the Python method of the same name.
+```
+class WeatherCurrent:
+
+    def __init__ (self, zipCode, state):
+        self.zipcode = zipCode
+        self.state = state
+
+        url = f'http://api.openweathermap.org/data/2.5/weather?zip={zipCode},us&units=imperial&APPID={weather_data_api}' # pass the user's zip code and our api imported from config.py
+        serialized_data = urllib.request.urlopen(url).read()
+
+        weather_data = json.loads(serialized_data) # grab the json data returned from the api call and deserialize it (turn the JSON data into Python objects we can work with)
+
+        self.temp = weather_data['main']['temp'] # assign variables the appropriate data by accessing nested dictionaries. 
+        self.humidity = weather_data['main']['humidity']
+        self.last_update = datetime.datetime.fromtimestamp(weather_data['dt']) # use the datetime.fromtimestamp() method to return the local datetime
+
+        # This last section is to provide state weather alerts to the user.
+        # Make a custom url with the user's state to navigate to the weather alerts site
+        urlAlert = "https://alerts.weather.gov/cap/" + state +".php?x=1"
+        
+        #Get content of webpage
+        content = requests.get(urlAlert).content
+        #Then parse it using Beautiful Soup
+        soup = bs(content, 'html.parser')
+        
+        #Find title and areadesc tags in HTML
+        self.effective_object = soup.find_all('title')
+        self.area_object = soup.find_all('cap:areadesc')
+        
+        #Initialize empty lists which will later hold the text of the various parts of the advisories
+        self.titles = []
+        self.effective = []
+        self.areas = []
+        
+        #Loop through the beautiful soup objects to extract the text each holds
+        for index in range (0, len(self.area_object)):
+            if index > 0: #This condition skips over the first title element which is not an advisory
+                obj = self.effective_object[index].get_text() #Get's text of title element
+                cur = str(obj) #Saves it as a string into a variable
+                sliceIndex = cur.find("issued") + 7 #We need to break the text into two, at the word issued. Save the index of the first letter of "issued"
+                self.effective.append(cur[sliceIndex:]) #Append the right side of the sliced text into a list
+                self.titles.append(cur[:sliceIndex - 8]) #Append the left side of the sliced text into a list
+            self.areas.append(self.area_object[index].get_text) #Append the text relating to affected area into a list
+        
+        #Store the list of alert lists in a zipped variable to be passed to the HTML page    
+        self.final = zip(self.titles, self.effective, self.areas)
+```
+I passing the dictionary of weather alert to to the HTMl and displayed the information nicely formatted. 
+```
+<h2>Current Alerts</h2>
+<!--Iterate through the final attribute of the weather object, creating a list items to compose the full weather alerts.-->
+    {% for alert in weather_current.final %} 
+	<h3><font color="red">{{ alert.0 }}</font></h3>
+	<p><b>Effective: </b>{{ alert.1 }}</p>
+	<p><b>Area Affected: </b>{{ alert.2 }}</p>
+    {% endfor %}
+```
+4. Add Movie Images. Retreived the URLs for the top movie titles from the OMDB API, parsed the JSON to get the URLs, and displayed the images in the HTML tabularly in a view.
+```
+#Query the API for movie images
+        #Make a list of url to the API's for each of the 5 top movies
+        base_url = "http://www.omdbapi.com/?s="
+        end_url = "&apikey=9bb81779&"
+        
+        self.api_urls = [] #Initialize list that will hold API urls
+        
+        #Convert the movie name into a query parameter that will be inserted into the url
+        for movie in self.movie_list: #Loop through each of the movies in movie_list
+            movie = list(movie) #Convert the string into a list
+            for index,char in enumerate(movie): #Go through each movie name, find spaces and replace with "%20".
+                if char == " ":
+                    movie[index] = "%"
+                    movie.insert(index + 1, "20")
+                    index += 1
+            movie = ''.join(movie) #Convert the list back into a string
+
+            cur_url = base_url + movie + end_url #Add each existing part of url to make a complete, ready-to-use url
+            self.api_urls.append(cur_url)
+        
+        #Make list of urls for each movie image to be passed to the render function and then to HTML
+        self.image_urls = [] #Initialize list that will hold image urls
+
+        for api_url in self.api_urls: #Loop through each of the API urls
+            json_string = urllib.request.urlopen(api_url).read() #Create JSON string
+            json_string = json.loads(json_string)
+            cur_url = json_string['Search'][0]['Poster'] #Parse string to get image url
+            self.image_urls.append(cur_url) #Add image url to list
+
+        zip_movies = zip(self.movie_list, self.image_urls) #Zip the lists into a package
+        self.final_movies = list(zip_movies) #convert zip into list
+```
+
+6. We had to add a feature to the website that would let the suer see the a list of the top events in his area.  Given parameters of zipcode and city, I queried the ticketmaster API for relevant data by the zipcode, then if this returned nothing, query it again by cityname.  I put the details for the events into lists, and send this dictionary of variables to HTML where it was displayed appropriately. Looking back on this, what I should have done is written an event class, and save the details to instance of this class for each event, and made just one list of these instances...
+```
+class EventScraper:
+    def __init__(self, city, zipCode):
+
+        #Define a function that receives a JSON object, parses it, and stores relevant data in lists which are then returned
+        def get_events(raw_events):
+            for index in range(0, len(raw_events)):
+                
+                list_all = raw_events[index]
+                
+                name = list_all['name'] #Gets name of event
+                description = list_all['classifications'][0]['genre']['name'] #Gets genre of event
+                
+                time = list_all['dates']['start']['localTime'] #Get's time of event
+                time = datetime.datetime.strptime(time, "%H:%M:%S") #Uses the datetime module to format nicely
+                time = datetime.datetime.strftime(time, "%I:%M %p")
+                time = time.lstrip("0")
+
+                date = list_all['dates']['start']['localDate'] #Get's date of event
+                date = datetime.datetime.strptime(date, "%Y-%M-%d")#Uses the datetime module to format nicely
+                date = datetime.datetime.strftime(date, "%b %d %Y") 
+
+                #Populates the lists with our data
+                events.append(name)
+                descriptions.append(description)
+                times.append(time)
+                dates.append(date)
+            
+            # using zip, we can pass in our lists, and return a list of tuples; zip infers that each index in one list will correspond to the same index in another list (or this is nonsense and I'm totally wrong)
+            final_events = zip(dates, times, events, descriptions)
+            return final_events
+
+        #Now we begin defining the main function
+        self.city = city
+        self.zipcode = str(zipCode)
+        final_events = ""
+        
+        #Go to TicketMaster API and pass in zipcode into api url as a query parameter
+        mainUrl = "https://app.ticketmaster.com/discovery/v2/events.json?postalCode="
+        mainUrl += self.zipcode
+        mainUrl += "&apikey=gx2cYqUZdkuQNeTACkp3A8EbY7oNriXe"
+        response = urllib.request.urlopen(mainUrl) # Returns a file like object from opening URL
+        final = json.loads(response.read()) #Reads object and saves it as a JSON object that can be parsed below
+        
+        # we'll create new lists to hold each sub-target(s) data
+        times = []
+        dates = []
+        events = []
+        descriptions = []
+        
+        #Find date, time, event name, and description values in JSON object
+        try:
+            raw_events = final['_embedded']['events'] #Sets up only the relevant portion of the JSON object, two dictionary levels in
+            
+            # call above function to get data from JSON object
+            final_events = get_events(raw_events)
+        except: #If there is no relevant data in the JSON object, after searching by zipcode, then search by city name
+            try:
+                #Same process as above
+                mainUrl = "https://app.ticketmaster.com/discovery/v2/events.json?city="
+                mainUrl += self.city
+                mainUrl += "&apikey=gx2cYqUZdkuQNeTACkp3A8EbY7oNriXe"
+                response = urllib.request.urlopen(mainUrl)
+                final = json.loads(response.read())
+                raw_events = final['_embedded']['events']
+                final_events = get_events(raw_events)
+
+            except: #If still not data, tell user that there are no events for his area
+                events.append(zipCode) #Put zipcode in place of event (see events_data)
+                times.append("") #Fill the rest of the list with no data
+                dates.append("")
+                descriptions.append("")
+                final_events = zip(dates, times, events, descriptions)
+                
+        self.final_list = list(final_events) #Make a list of the previously-made lists to pass to the HTML
+
+```
+7. Change preferences. Auto-populate list of favorite sports teams, and retrieve the user's favorite team.
 
 ## Second sprint (C# fullstack):
 1. Redisigning the Navbar. I looked at the existing sister site as the model for the styling. Using jquery to alter the opacity of the navbar upon scrolling.
-2. Creating a chatbox (front end). Learned about textarea tag in HTML, how to create a partial view layered on an existing view and common/visible on specific pages, the importance of referencing JS/Jquery tags in the right order. I styled the box similarly to the navbar, and made it collapsible.  The heading had the name of the person to whom the message was being sent. Then I added a dropdown list from which the user could choose who to send the message to.  Since the chatbox was supposed to be accesible on different pages, I could only pass a model to it from a controller that was common to the various controllers for the different pages. So I created a base controller from which the others inherited, and in that controller I queried the database for all the site users who would potentially become recipients for the messages.
+```
+$(window).scroll(function () {
+        
+	var elem = document.getElementById("navbar"); //Get's navbar Id
+	if (($(this)).scrollTop() >= 30) { //If distance from top is greater than 30px
+	    elem.style.transition = "opacity 0.2s linear 0s"; //Call transition function on opacity
+	    elem.style.opacity = 0.7; //Set target opacity
+	}
+	else if (($(this)).scrollTop() < 30) { //If distance from top is less than 30px
+	    elem.style.transition = "opacity 0.2s linear 0s";
+	    elem.style.opacity = 1;
+	}
+});
+```
+2. Creating a chatbox (front end). Learned about textarea tag in HTML, how to create a partial view layered on an existing view and common/visible on specific pages, the importance of referencing JS/Jquery tags in the right order. I styled the box similarly to the navbar, and made it collapsible.
+```
+function closeChat() {
+    document.getElementById("chatForm").style.display = "none";
+};
+
+function openChat() {
+    document.getElementById("chatForm").style.display = "block";
+};
+```
+The heading had the name of the person to whom the message was being sent. Then I added a dropdown list from which the user could choose who to send the message to.
+```
+   <div class="chat-popup" id="chatForm">
+        <!-- Modal content-->
+        <div class="modal-content" method="post">
+            <div class="modal-header">
+                <button type="button" id="test" onclick="closeChat()" class="close">&times;</button>
+                <h4 class="modal-title">@User.Identity.Name</h4>
+            </div>
+            <form>
+                <div class="modal-body">
+                    <ul id="discussion"></ul>
+                    <textarea placeholder="Type message..." name="msg" id="message" required></textarea>
+                    <input type="hidden" id="displayname" value="@User.Identity.Name" />
+                    <button type="submit" class="btn" id="sendmessage">Send</button>
+                </div>
+            </form>
+        </div>
+    </div>
+```
+When the user selected a name, the heading in the chatbox also was updated, with this JavaScript code:
+```
+function updateName(){
+    var name = $('.recipient').find('option:selected').text(); //Get and store the username
+    if (name != "Select"){ //Make sure name is not the select option
+        document.getElementById("chatUser").innerHTML = name;
+    }
+}
+```
+Since the chatbox was supposed to be accesible on different pages, I could only pass a model to it from a controller that was common to the various controllers for the different pages. So I created a base controller from which the others inherited, and in that controller I queried the database for all the site users who would potentially become recipients for the messages.
+```
+Insert CODE HERE
+```
 3. Saving the messages to the DB.  On the server side chathub class, I was able to retreive the necessary data and save to the DB.
 ```
 public class ChatHub : Hub //Hub base class provides methods that communicates with signalR connections
@@ -113,7 +399,9 @@ Then I created a view page where this data could be displayed in a tabular form.
     </table>
 }
 ```
-
+6. In order for new employees to make use of the site, they were required to validate a confirmation code sent to them by a message.  I wrote the code that would allow the manager to send this confirmation code to the employee:
+```
+```
 
 ## Third sprint (Python Front-end only):
 
