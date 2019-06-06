@@ -531,6 +531,7 @@ The different HTML elements made use of these variables, so if ever a slight twe
     visibility: visible;
   }
 }
+```
 And the JavaScript for the slider:
 ```
 var curVal = 1; //Keeps track of old position of slider
