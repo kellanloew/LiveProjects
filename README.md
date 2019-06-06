@@ -7,7 +7,7 @@ In the second sprint, I worked on an admin site for the construction company Ere
 In the last 3 sprints, I worked on a revamped version of the previous Django Datascraper, one sprint on Frontend, Backend, and Fullstack each.
 ## Sprints
 * [First Sprint (Python full stack)](#first-sprint-(python-full-stack))
-* [Second Sprint](#second-sprint)
+* [Second Sprint: full stack](#second-sprint:-full-stack)
 * [Third Sprint (Python Front-end only)](#third-sprint-(python-front-end-only))
 * [Fourth Sprint (Python Back-end only):](#fourth-sprint-(python-back-end-only))
 * [Fifth Sprint (Python full stack):](#fifth-sprint-(python-full-stack))
@@ -251,7 +251,7 @@ class EventScraper:
 ```
 7. Change preferences. Auto-populate list of favorite sports teams, and retrieve the user's favorite team.
 
-### Second Sprint
+### Second Sprint: full stack
 1. Redisigning the Navbar. I looked at the existing sister site as the model for the styling. Using jquery to alter the opacity of the navbar upon scrolling.
 ```
 $(window).scroll(function () {
