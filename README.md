@@ -19,8 +19,100 @@ Change preferences. Auto-populate list of favorite sports teams, and retrieve th
 1. Redisigning the Navbar. I looked at the existing sister site as the model for the styling. Using jquery to alter the opacity of the navbar upon scrolling.
 2. Creating a chatbox (front end). Learned about textarea tag in HTML, how to create a partial view layered on an existing view and common/visible on specific pages, the importance of referencing JS/Jquery tags in the right order. I styled the box similarly to the navbar, and made it collapsible.  The heading had the name of the person to whom the message was being sent. Then I added a dropdown list from which the user could choose who to send the message to.  Since the chatbox was supposed to be accesible on different pages, I could only pass a model to it from a controller that was common to the various controllers for the different pages. So I created a base controller from which the others inherited, and in that controller I queried the database for all the site users who would potentially become recipients for the messages.
 3. Saving the messages to the DB.  On the server side chathub class, I was able to retreive the necessary data and save to the DB.
-4. Creating a code-first model for Entity Framework with foreign keys. (no code snippet)
-5. Making a controller to get list of schedules from DB and organizing them according to jobs, then creating a view page where this data can be displayed in a tabular form.
+```
+public class ChatHub : Hub //Hub base class provides methods that communicates with signalR connections
+    {
+        public void Send(string name, string message) //This send method is called from Ajax
+        {
+            object timestamp = DateTime.Now;
+            // Call the addNewMessageToPage method to update clients' message boxes.
+            Clients.All.addNewMessageToPage($"{ DateTime.Now.ToString("h:mm tt")} {name}: {message}");
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ChatMessage chat = new ChatMessage();
+                Guid ChatId = Guid.NewGuid();
+                chat.Message = message;
+                chat.ChatMessageId = ChatId;
+                chat.Date = DateTime.Now;
+                string currentUserId = HttpContext.Current.User.Identity.GetUserId(); //Get's ID of current user
+                ApplicationUser currentUser = db.Users.FirstOrDefault(x => x.Id == currentUserId); //Gets name of current user from ID
+                chat.Sender = currentUser; //Save message-sender to db instance
+                //System.Diagnostics.Debug.WriteLine(message);
+                db.ChatMessages.Add(chat); //Adds a chatmessage entity to collection representing DB table
+                db.SaveChanges(); //Apply changes to DB model to DB itself
+            }
+        }
+    }
+```
+4. Creating a code-first model for Entity Framework with foreign keys.
+5. I made a controller to get list of all schedules from DB. I organized them according to those jobs at the same job site, so all schedules with jobs at the same site were put into a list, and the full list of schedules consisted of a list of these lists.
+```
+public ActionResult Index()
+        {
+            List<Schedule> scheduleItems = new List<Schedule>(); //List of job items
+            List<List<Schedule>> allJobs = new List<List<Schedule>>(); //List of schedule lists
+
+            var jobs = db.Jobs.Select(item => item).ToList(); //Get list of all jobs, each with a different ID
+
+            foreach(Job item in jobs)
+            {
+                //Make a list of schedule items that have the same JobSite
+                scheduleItems = db.Schedules.Where(x => x.Job.JobId == item.JobId).ToList(); 
+                //Add this list to list of Schedules organized by JobSite, only if teh schedule is not null, i.e., has jobs
+                if(scheduleItems.Count != 0) allJobs.Add(scheduleItems);
+            }
+
+            return View(allJobs);
+        }
+```
+Then I created a view page where this data could be displayed in a tabular form.
+```
+@for (int i = 0; i < Model.Count; i++)
+{
+    var scheduleList = Model[i];
+
+<h3 class="schedule-list">Job @(i + 1): @scheduleList[0].Job.JobTitle</h3>
+
+    <table class="table">
+        <tr>
+            <th>
+                Person
+            </th>
+            <th>
+                Work Type
+            </th>
+            <th>
+                Shift Time
+            </th>
+            <th>
+                Note
+            </th>
+        </tr>
+        @foreach (var item in scheduleList)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Person.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.WorkType)
+                </td>
+                <td>
+                    @item.Date
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Note)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.ScheduleId }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.ScheduleId }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.ScheduleId })
+                </td>
+            </tr>
+        }
+    </table>
+}
+```
 
 
 ## Third sprint (Python Front-end only):
