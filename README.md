@@ -6,14 +6,14 @@ In the first sprints, I helped create and improve various features of a django w
 In the second sprint, I worked on an admin site for the construction company Erectors, Inc. The purpose of this site was to allow project managers to assign and manage tasks adn task details for each of the employees, and allow everyone to chat with each other about related questions.
 In the last 3 sprints, I worked on a revamped version of the previous Django Datascraper, one sprint on Frontend, Backend, and Fullstack each.
 ## Sprints
-* [First Sprint (Python full stack)](#first-sprint-(python-full-stack))
-* [Second Sprint, full stack](#second-sprint,-full-stack)
+* [First Sprint, Python full stack](#first-sprint-python-full-stack))
+* [Second Sprint, C# full stack](#second-sprint-c-sharp-full-stack)
 * [Third Sprint (Python Front-end only)](#third-sprint-(python-front-end-only))
 * [Fourth Sprint (Python Back-end only):](#fourth-sprint-(python-back-end-only))
 * [Fifth Sprint (Python full stack):](#fifth-sprint-(python-full-stack))
 
 
-### First Sprint (Python full stack)
+### First Sprint, Python full stack
 1. Home Page. I added to the homepage a grid of photos representing the different features of the website, which when clicked, directed the user to the latest updates regarding that category, and displayed a error-modal if access is attempted to a page without the user being logged in.  Here is one row of the grid:
 ```
 <h1>Welcome to DataScrape!</h1>
@@ -251,7 +251,7 @@ class EventScraper:
 ```
 7. Change preferences. Auto-populate list of favorite sports teams, and retrieve the user's favorite team.
 
-### Second Sprint, full stack
+### Second Sprint, C# full stack
 1. Redisigning the Navbar. I looked at the existing sister site as the model for the styling. Using jquery to alter the opacity of the navbar upon scrolling.
 ```
 $(window).scroll(function () {
