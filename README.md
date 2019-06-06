@@ -2,7 +2,7 @@
 Web Development Projects
 
 Over the last three months at the Tech Academy, I worked on a team of fellow junior developers as a fullstack website developer.  With a total of 5 different two-week sprints, I gained a lot of confidence in working in both Django and ASP.NET frameworks.
-In the first sprints, I helped create and improve various features of a django website that fetched and aggregated data based on user-preferences, such as weather alerts, current traffic, sport events, concerts, movies, and podcasts.
+In the first sprint, I helped create and improve various features of a django website that fetched and aggregated data based on user-preferences, such as weather alerts, current traffic, sport events, concerts, movies, and podcasts.
 In the second sprint, I worked on an admin site for the construction company Erectors, Inc. The purpose of this site was to allow project managers to assign and manage tasks adn task details for each of the employees, and allow everyone to chat with each other about related questions.
 In the last 3 sprints, I worked on a revamped version of the previous Django Datascraper, one sprint on Frontend, Backend, and Fullstack each.
 ## Sprints
@@ -14,7 +14,7 @@ In the last 3 sprints, I worked on a revamped version of the previous Django Dat
 
 
 ### First Sprint, Python full stack
-1. Home Page. I added to the homepage a grid of photos representing the different features of the website, which when clicked, directed the user to the latest updates regarding that category, and displayed a error-modal if access is attempted to a page without the user being logged in.  Here is one row of the grid:
+1. Previously, the homepage had sparate text links that would lead to the different pages that the site had.  I changed these links to a grid of photos representing the different features of the website, which when clicked, directed the user to the latest updates regarding that category, and displayed a error-modal if access is attempted to a page without the user being logged in.  Here is one row of the grid:
 ```
 <h1>Welcome to DataScrape!</h1>
     <h3 id="description">Click on any of the images below to see the latest personalized updates.</h3>
@@ -531,6 +531,51 @@ The different HTML elements made use of these variables, so if ever a slight twe
     visibility: visible;
   }
 }
+And the JavaScript for the slider:
+```
+var curVal = 1; //Keeps track of old position of slider
+
+var totalItems = $('.news-item').length; //Get number of carousel items
+var slider = document.getElementById("news-range");
+$("#news-range").attr("max", totalItems - 1); //Set the max attribute of the html input tag
+
+$('#news-range').on('change', function() { //This will execute when slider is moved
+    var movedVal = 0;
+    movedVal = $("#news-range").val();
+        
+    if(movedVal > curVal){
+        for(var i = 0; i < movedVal - curVal; i++){ //If slider is moved to the right
+            $("#next-button").click(); //Click next button
+        }
+    }
+    else if(movedVal < curVal){ //If slider is moved to the right
+        for(var i = 0; i < curVal - movedVal; i++){
+            $("#prev-button").click(); //Click previous button
+        }
+    }
+    curVal = movedVal; //Reset position of slider
+  });
+
+//Repopulates carousel when end is reached
+$('#news-container').on('slide.bs.carousel', function (e) {
+
+    var $e = $(e.relatedTarget); //Get element associated with click event
+    var idx = $e.index(); //Get the number representing which photo news heading number we're at
+    var itemsPerSlide = 3;
+    
+    if (idx >= totalItems-(itemsPerSlide-1)) { //Starts adding elements to slide only if there are already 4 present
+        var it = itemsPerSlide - (totalItems - idx);
+        for (var i=0; i <it; i++) {
+            // append slides to end by constructing new element (eq)
+            if (e.direction=="left") {
+                $('.news-item').eq(i).appendTo('.carousel-inner');
+            }
+            else {
+                $('.news-item').eq(0).appendTo('.carousel-inner');
+            }
+        }
+    }
+});
 ```
 5. Added a default profile image if the user has not selected a personal one, and eliminated an upload button by automatically uploading/changing the picture once the user has selected a profile pic from a file explorer.
 ```
@@ -1009,7 +1054,38 @@ def parseInstructions(instructions):
     #Convert previous string property to the list of directions. The benefit of a weakly typed language :)
     return finishedDirections
 ```
-In the HTML, I had to play with different layers to get the recipe image to sit on top of a blurred background image. I also put a button there to all the user to watch an instructional video that would appear in a pop-up modal.
+In the HTML, I had to play with different layers to get the recipe image to sit on top of a blurred background image. Here is part of the CSS:
+```
+#recipe-image-row::before{
+  background-image: url('https://cdn.pixabay.com/photo/2014/10/22/16/38/ingredients-498199_960_720.jpg');
+  z-index: 0;
+  background-repeat: none;
+  background-size: cover;
+  height: 110%;
+}
+
+#recipe-image-row::after{
+  content: "";
+  background-image: url('https://cdn.pixabay.com/photo/2014/10/22/16/38/ingredients-498199_960_720.jpg');
+  filter: blur(6px);
+  opacity: 0.8;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  z-index: -1;  
+  height: 110%;
+}
+
+.recipe-image{
+  border-radius: 4px;
+  z-index: 2;
+  box-shadow: 0 0 5px 5px grey;
+  margin-bottom: 50px;
+}
+```
+I also put a button there to all the user to watch an instructional video that would appear in a pop-up modal.
 ```
 <div class="text-center mb-4">
     <a class="btn default-button" href="javascript:history.back()">Back to recipe list</a>
@@ -1017,10 +1093,48 @@ In the HTML, I had to play with different layers to get the recipe image to sit 
     <a class="btn default-button" data-toggle="modal" data-target="#exampleModal" id="video-link">Watch Video</a>
     {% endif %}
 </div>
+<div class="row text-center" id="recipe-image-row">
+    <div class="col-sm">
+        <img class="recipe-image" src="{{ recipe.image }}" height="auto" width="30%"> 
+    </div>
+</div>
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Video</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <iframe width="90%" height="400px" src="{{ recipe.youtube }}"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 ```
 2. For the rest of the Sprint, I worked on consolidating and streamlining the code that display the app dashboard and app manager. There were three parts to this:
-1) Modifing the Apps' Models. The settings page was comprised mainly of modules that control the settings of each app. Previously, the details about each app as well as it icon were hardcoded in the HTML page for each module. In order to keep better track of the various apps, and make it easier to add and remove apps, I wrote a script that would create a DB table that would store just these details and populate it with data.  In the next step, I queried this data and incorporated it into the app manager.
-2) Store user preferences for each app. Eventually we wanted the user to be able to switch on and off certain features of each app at will, and store these features.  After toying with several ideas of database architecture, I decided on separate tables for each app that would hold the app settings for each user. Then, I made one linking table that had foreign keys to that user's row in each of the app preference tables.
+1) Modifing the Apps' Models. The settings page was comprised mainly of modules that control the settings of each app. Previously, the details about each app as well as it icon were hardcoded in the HTML page for each module. In order to keep better track of the various apps, and make it easier to add and remove apps, I wrote a script that would create a DB table that would store just these details and populate it with data. Here are couple of the entries:
+```
+AppProps(app_name="Bands", icon="fa-guitar", description="Check if your favorite bands are playing near you!", button1="Geolocation", button2="Feature", button3="Another Feature", color="blue", title="Local Shows", url="/bands").save()
+AppProps(app_name="Budget", icon="fa-money-bill", description="No more ovepsending! We'll take of that for you.", button1="Shared-Private", button2="Feature", button3="Another Feature", color="blue", title="Budget", url="/budget").save()
+AppProps(app_name="Craigslist", icon="fa-shopping-cart", description="Keep track of all those hot items on Craigslist.", button1="Geolocation", button2="Feature", button3="Another Feature", color="blue", title="Craiglist", url="/forsale").save()
+
+```
+In the next step, I queried this data and incorporated it into the app manager.
+2) Store user preferences for each app. Eventually we wanted the user to be able to switch on and off certain features of each app at will, and store these features.  After toying with several ideas of database architecture, I decided on separate tables for each app that would hold the app settings for each user. Here is one example:
+```
+class BudgetPreferences(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    offOn = models.BooleanField(default=True)
+    button1 = models.BooleanField(default=True)
+    button2 = models.BooleanField(default=False)
+    button3 = models.BooleanField(default=False)
+```
+Then, I made one linking table that had foreign keys to that user's row in each of the app preference tables.
 ```
 class AllAppPreferences(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
