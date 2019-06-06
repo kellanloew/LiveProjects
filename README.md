@@ -9,8 +9,8 @@ In the last 3 sprints, I worked on a revamped version of the previous Django Dat
 * [First Sprint (Python full stack)](#first-sprint-(python-full-stack))
 * [Second Sprint C# full stack](#second-sprint-C#-full-stack)
 * [Third Sprint (Python Front-end only)](#third-sprint-(python-front-end-only))
-* [Fourth Sprint (Python Back-end only):](#fourth-sprint-(python-back-end-only):)
-* [Fifth Sprint (Python full stack):](#fifth-sprint-(python-full-stack):)
+* [Fourth Sprint (Python Back-end only):](#fourth-sprint-(python-back-end-only))
+* [Fifth Sprint (Python full stack):](#fifth-sprint-(python-full-stack))
 
 
 ### First Sprint (Python full stack)
@@ -546,7 +546,7 @@ $(document).on('change', ':file', function() {
 
 ```
 
-### Fourth Sprint (Python Back-end only):
+### Fourth Sprint (Python Back-end only)
 
 1. Account App. Goal: allow user to switch a button allowing him to toggle automatic geolocation or not. Added slider to HTML, linked it to AJAX call which would post when the slider was switched from its current position. (In this process, discovered the necessity of installing a function that would create a csrf token for Django's authentication system)
 ```
@@ -851,7 +851,7 @@ close.on('click', function(){ //Function to execute when modal closed
     $('.modal').find('iframe').attr('src', src); //Puts it back right away to be used for next time the modal is opened
 });
 ```
-### Fifth Sprint (Python full stack):
+### Fifth Sprint (Python full stack)
 1. Recipe App. For the first four days of this sprint, I worked on creating a new app that would allow the user to search for recipe by ingredient name, display the search results to the user, and let the user click on a recipe see the details.
 I broke the problem down into two main functions: the first function received the user's search word and searched a recipe API for recipes with that name. The second function returned details on a specific recipe that the user selected.
 In order to make the first function return a maximum number of recipes, I implemented two separate queries, one that used the serachword as a paramater for ingredient name, and the other that searched by recipe name. The two results were joined together and duplicates removed, then were returned to the HTML page.
