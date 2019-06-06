@@ -6,8 +6,8 @@ In the first sprints, I helped create and improve various features of a django w
 In the second sprint, I worked on an admin site for the construction company Erectors, Inc. The purpose of this site was to allow project managers to assign and manage tasks adn task details for each of the employees, and allow everyone to chat with each other about related questions.
 In the last 3 sprints, I worked on a revamped version of the previous Django Datascraper, one sprint on Frontend, Backend, and Fullstack each.
 ## Sprints
-* [First Sprint (Python full stack)](#first-sprint-(python-full-stack))
-* [Second sprint (C# fullstack)](#second-sprint-(C#-full-stack))
+* [First Sprint (Python full stack)](#first-sprint-(python-full-stack):)
+* [Second sprint (C# fullstack)](#second-sprint-(C#-full-stack):)
 
 ### First Sprint (Python full stack):
 1. Home Page. I added to the homepage a grid of photos representing the different features of the website, which when clicked, directed the user to the latest updates regarding that category, and displayed a error-modal if access is attempted to a page without the user being logged in.  Here is one row of the grid:
