@@ -429,9 +429,9 @@ Then I created a view page where this data could be displayed in a tabular form.
 ```
 The different HTML elements made use of these variables, so if ever a slight tweak of the colors were necessary, they could all be changed at one stroke.
 
-3. Added an app manager to the profile page. Basically a bunch of compartments, each containing the app icon, several slider buttons, description, and list of app contributors. The icons and buttons are colored according to the agreed on colors for the apps. (This app manager was updated in a later sprint below; you can see the updated code there.)
+3. Added app manager modules to the profile page. Basically this consisted of a bunch of compartments, each containing the app icon, several slider buttons, description, and list of app contributors. The icons and buttons are colored according to the agreed on colors for the apps. (This app manager was updated in a later sprint below; you can see the updated code there.)
 
-4. The news-app was just a static page with the headline and photo for each news article.  I converted this into a carousel in which each entity was the news photo with an overlay of the headlines, and the user could go through each one by clicking forward and backward arrows. Then I added a slider by which, though not fully functional, allowed the the user to navigate through the different headings.
+4. The news-app had been just a static page with the headline and photo for each news article.  I converted this into a carousel in which each entity was the news photo with an overlay of the headlines, and the user could go through each one by clicking forward and backward arrows. Then I added a slider by which, though not fully functional, allowed the the user to navigate through the different headings.
 ```
 <div class="carousel slide" id="news-container">
       <div class="carousel-inner row mx-auto">
@@ -596,7 +596,7 @@ $(document).on('change', ':file', function() {
 
 ### Fourth Sprint, Python back end
 
-1. Account App. Goal: allow user to switch a button allowing him to toggle automatic geolocation or not. Added slider to HTML, linked it to AJAX call which would post when the slider was switched from its current position. (In this process, discovered the necessity of installing a function that would create a csrf token for Django's authentication system)
+1. Account App. Goal: allow user to switch a button allowing him/her to toggle automatic geolocation or not. To implement this, I added a slider button to the HTML, linked it to an AJAX call which would post when the slider was switched from its current position. (In this process, I discovered the necessity of installing a function that would create a csrf token for Django's authentication system):
 ```
 function getCookie(name) {
     var cookieValue = null;
@@ -614,7 +614,7 @@ function getCookie(name) {
     return cookieValue;
 }
 ```
-The setting was saved to database.
+Once the post request was sent to the server, this setting was saved to database.
 ```
 if buttonID == "#geo-button": #If main geolocation button was changed
         print(buttonValue)
