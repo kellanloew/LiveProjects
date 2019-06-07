@@ -428,7 +428,9 @@ Then I created a view page where this data could be displayed in a tabular form.
 }
 ```
 The different HTML elements made use of these variables, so if ever a slight tweak of the colors were necessary, they could all be changed at one stroke.
+
 3. Added an app manager to the profile page. Basically a bunch of compartments, each containing the app icon, several slider buttons, description, and list of app contributors. The icons and buttons are colored according to the agreed on colors for the apps. (This app manager was updated in a later sprint below; you can see the updated code there.)
+
 4. The news-app was just a static page with the headline and photo for each news article.  I converted this into a carousel in which each entity was the news photo with an overlay of the headlines, and the user could go through each one by clicking forward and backward arrows. Then I added a slider by which, though not fully functional, allowed the the user to navigate through the different headings.
 ```
 <div class="carousel slide" id="news-container">
