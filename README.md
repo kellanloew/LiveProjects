@@ -74,9 +74,10 @@ In the last 3 sprints, I worked on a revamped version of the previous Django Dat
                 </div>
         </div>
 ```
-2. I worked on populating a dropdown list that would have a list of friends that the user could send messages to.
-
+2. I worked on populating a dropdown list that would have a list of friends that the user could send messages to. This is the server side code that got the list of all the user's friends.
 ![](img/populate_friend_request_options.PNG)
+And here is the front end:
+![](img/friend_dropdown_list_html.PNG)
 
 3. Weather Alerts. Queried the weather API for current weather alerts, including title, times, and areas affected. Parsed the JSON string and saved appropriate parts to variables in a dictionary. I ran into a bug around the method "zip" -- someone had previously defined a variable of this name and had overwritten the Python method of the same name.
 ```
@@ -249,8 +250,12 @@ class EventScraper:
         self.final_list = list(final_events) #Make a list of the previously-made lists to pass to the HTML
 
 ```
-7. Change preferences. Auto-populate list of favorite sports teams, and retrieve the user's favorite team.
-
+7. Team preferences. For this ticket, I did two things: get the complete list of sport teams for each sport from the database, and then save the user's preferences or changes to his preferences. Upon a get request, the team anmes were fetched from the database, and upon a post request the user's preferences were saved.
+![](img/change_preferences_1.PNG)
+![](img/change_preferences_2.PNG)
+![](img/change_preferences_3.PNG)
+And here is a snippet from the HTML page of the dropdown lists:
+![](img/change_preferences_html.PNG)
 ### Second Sprint, C Sharp full stack
 1. Redisigning the Navbar. I looked at the existing sister site as the model for the styling. Using jquery to alter the opacity of the navbar upon scrolling.
 ```
@@ -307,9 +312,9 @@ function updateName(){
 }
 ```
 Since the chatbox was supposed to be accesible on different pages, I could only pass a model to it from a controller that was common to the various controllers for the different pages. So I created a base controller from which the others inherited, and in that controller I queried the database for all the site users who would potentially become recipients for the messages.
-```
-Insert CODE HERE
-```
+![](img/BaseController.PNG)
+And then I made this controller accessible to the main Layout view:
+![](img/chatbox-Layoutpage.PNG)
 3. Saving the messages to the DB.  On the server side chathub class, I was able to retreive the necessary data and save to the DB.
 ```
 public class ChatHub : Hub //Hub base class provides methods that communicates with signalR connections
