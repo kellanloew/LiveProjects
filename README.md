@@ -75,9 +75,9 @@ In the last 3 sprints, I worked on a revamped version of the previous Django Dat
         </div>
 ```
 2. I worked on populating a dropdown list that would have a list of friends that the user could send messages to.
-```
-INSERT CODE
-```
+
+![](img/populate_friend_request_options.PNG)
+
 3. Weather Alerts. Queried the weather API for current weather alerts, including title, times, and areas affected. Parsed the JSON string and saved appropriate parts to variables in a dictionary. I ran into a bug around the method "zip" -- someone had previously defined a variable of this name and had overwritten the Python method of the same name.
 ```
 class WeatherCurrent:
