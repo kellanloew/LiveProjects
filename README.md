@@ -585,7 +585,7 @@ $('#news-container').on('slide.bs.carousel', function (e) {
     }
 });
 ```
-5. Added a default profile image if the user has not selected a personal one, and eliminated an upload button by automatically uploading/changing the picture once the user has selected a profile pic from a file explorer.
+5. Added a default profile image if the user has not selected a personal one, and eliminated an upload button by automatically uploading/changing the picture once the user has selected a profile pic from a file explorer. As part of this, I learned how to override the styling of an unnecessary upload button that was inserted automatically by the file upload property of the HTML input tag. I was unable to target this button through CSS, so I simply button a button on top of it that had the same functionality.
 ```
 {% if user.userprofile.image %}
                 <img class="profile-image img-fluid float-left" id="prof-pic" src="{{ user.userprofile.image.url }}" width="166" height="141"/>
