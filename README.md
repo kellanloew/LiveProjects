@@ -1,10 +1,10 @@
 # LiveProjects
 Web Development Projects
 
-Over the last three months at the Tech Academy, I worked on a team of fellow junior developers as a fullstack website developer.  With a total of 5 different two-week sprints, I gained a lot of confidence in working in both Django and ASP.NET frameworks.
+Over the last three months at Prosper IT Cons, I worked on a team of fellow junior developers as a fullstack website developer.  With a total of 5 different two-week sprints, I gained a lot of confidence in working in both Django and ASP.NET frameworks.
 In the first sprint, I helped create and improve various features of a django website that fetched and aggregated data based on user-preferences, such as weather alerts, current traffic, sport events, concerts, movies, and podcasts.
 In the second sprint, I worked on an admin site for the construction company Erectors, Inc. The purpose of this site was to allow project managers to assign and manage tasks adn task details for each of the employees, and allow everyone to chat with each other about related questions.
-In the last 3 sprints, I worked on a revamped version of the previous Django Datascraper, one sprint on Frontend, Backend, and Fullstack each.
+In the last 3 sprints, I worked on a revamped version of the previous Django Datascraper, one sprint each on frontend, backend, and fullstack.
 ## Sprints
 * [First Sprint, Python full stack](#first-sprint-python-full-stack)
 * [Second Sprint, C Sharp full stack](#second-sprint-c-sharp-full-stack)
