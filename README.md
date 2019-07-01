@@ -730,6 +730,7 @@ def inbox(request):
         return render(request, 'chat/inbox.html', {'messages': messages, 'form': form})
 ```
 The value of the conversation thread was the message of the id of the first message that was responded to.
+
 4. Movie App. This was an app that would allow the user to view most popular movies, sort them by year and/or genre, and change the number to display on the page. For each movie, there is a toggle button to allow the user to view details on the movie, such as year, genre, director, and plot. To setup, I added a movie class with the properties already mentioned, and added a model/DB table for saving the user preferences for display and sort options, set up the HTML page with appropriate buttons and drop down list. The view consisted of two functions, one to deal with the the get/post requests and another to actually fetch the list of movies. The first function checked the user display preferences, saved any new changes to the DB, and passed these changes to the second class so it could fetch movies accordingly.
 ```
 def topfive(request):
@@ -764,7 +765,7 @@ def topfive(request):
 				db.save()
 				return get_movies(request, db.display, db.year_sort, genreSort)
 ```
-In the second function, using beautiful soup and parsing techniques, I got the top 100 movie title from IMDB. Then for each movie, using the title as parameter, I queried the OMDB API for details for each movie.  This involved installing python's w3lib module to make the title string into a safe parameter with only ASCII characters, to remove the possibility of foreign characters being passed in. The OMDB API returned a JSON object which I parsed for the data I wanted, then saved the appropriate data to the appropriate properties of a movie class instance.  A list of movies was thereby created, and returned in a context to the HTML.
+In the second function, using by making API calls and then parsing the resulting JSON, I got the top 100 movie title from IMDB. Then for each movie, using the title as parameter, I queried the OMDB API for details for each movie.  This involved installing python's w3lib module to make the title string into a safe parameter with only ASCII characters, to remove the possibility of foreign characters being passed in. The OMDB API returned a JSON object which I parsed for the data I wanted, then saved the appropriate data to the appropriate properties of a movie class instance.  A list of movies was thereby created, and returned in a context to the HTML.
 In order to implement the genre search efficiently, before creating a movie instance and adding it to the list, I checked the JSON response to see if the movie included the genre the user requested, and if not, it simply returned to the top of the loop to find the next movie.
 To implement the display feature, the loop to fetch movies was ran until the length of the movie list was as long as the desired display.
 ```
@@ -988,7 +989,7 @@ Each recipe was displayed with its picture in a scrollable box. Hidden within ea
 <h3>Sorry, there are no recipes for that search.</h3>
 {% endif %}
 ```
-With this ID, the second function fetched the details for this recipe. Getting the ingredients in their measurements was a bit tricky, since the API separated out the ingredients each with their own keys and values. And there were always 20 key value pairs for each ingredients and measurements, regardless of how many ingredients were actually used in the my solution was to get each ingredient and corresponding measurement that was not empty, join them together in one string, and then append this resulting string to a list of ingredients.
+With this ID, the second function fetched the details for this recipe. Getting the ingredients and their measurements was a bit tricky, since the API separated out the ingredients each with their own keys and values. And there were always 20 key value pairs for each ingredient and measurement, regardless of how many ingredients were actually used in the recipe.  My solution was to get each ingredient and corresponding measurement that was not empty, join them together in one string, and then append this resulting string to a list of ingredients.
 ```
 def recipe(request, id):
     #Create URL for API
